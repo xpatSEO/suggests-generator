@@ -100,6 +100,7 @@ else:
 
                 if not result_df.empty:
                     st.success("Extraction terminée !")
+                    st.balloons()
                     st.dataframe(result_df)
 
                     # Création du fichier CSV en mémoire pour téléchargement
