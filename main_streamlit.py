@@ -64,7 +64,8 @@ def process_keywords(keywords_list):
 
 
 # Interface Streamlit
-st.title("🔍 Outil d'extraction de suggestions Google")
+st.title("Extraction de suggestions Google")
+st.image("logo_arkée.png")
 
 # Upload du fichier CSV
 uploaded_file = st.file_uploader("📂 Importer un fichier CSV contenant des mots-clés :", type=["csv"])
