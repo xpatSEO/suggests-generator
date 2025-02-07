@@ -64,7 +64,7 @@ def process_keywords(keywords_list):
 
 
 # Interface Streamlit
-st.image("Arkée White.png", width=150)
+st.image("arkee-white.png", width=150)
 st.title("Extraction de suggestions Google")
 
 
