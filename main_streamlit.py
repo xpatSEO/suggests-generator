@@ -89,6 +89,7 @@ def main():
     
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
+            keywords_list = [kw.lower() for kw in keywords_text]
             keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
             
             with st.spinner("Analyse en cours..."):
