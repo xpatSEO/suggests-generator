@@ -1,0 +1,4 @@
+requests==2.31.0
+fake_useragent==2.0.3
+pandas==1.5.3
+tqdm==4.67.1
