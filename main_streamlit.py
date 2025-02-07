@@ -81,20 +81,22 @@ def process_keywords(keywords_list):
 
 # --- Interface Streamlit ---
 def main():
-    st.title("🔍 Générateur de suggestions Google")
-
-    # Zone de texte pour entrer les mots-clés
-    keywords_text = st.text_area("📌 Entrez vos mots-clés (un par ligne) :")
+    st.image("arkee-white.png",width=150)
+    st.title("Extracteur de suggestions Google")
     
-    if st.button("🔎 Lancer l'analyse"):
+    # Zone de texte pour entrer les mots-clés
+    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
+    
+    if st.button("Lancer l'extraction"):
         if keywords_text.strip():
             keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
             
-            with st.spinner("🔄 Analyse en cours..."):
+            with st.spinner("Analyse en cours..."):
                 result_df = process_keywords(keywords_list)
 
             if not result_df.empty:
-                st.success("✅ Analyse terminée avec succès !")
+                st.success("Analyse terminée avec succès !")s
+                st.balloons()
                 st.dataframe(result_df)
 
                 # Génération du fichier CSV téléchargeable
