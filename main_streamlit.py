@@ -64,17 +64,17 @@ def process_keywords(keywords_list):
 
 
 # Interface Streamlit
+st.image("Arkée White.png", width=150)
 st.title("Extraction de suggestions Google")
-st.image("logo_arkée.png")
 
-# Upload du fichier CSV
-uploaded_file = st.file_uploader("📂 Importer un fichier CSV contenant des mots-clés :", type=["csv"])
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file, header=None, names=['keyword'])
-    keywords_list = df['keyword'].tolist()
+# Champ de texte pour saisir les requêtes
+input_keywords = st.text_area("Enter your main keywords (one keyword per line):")
+keywords_list = input_keywords.split('\n') if input_keywords else []
+if not keywords_list or all(keyword.strip() == "" for keyword in keywords_list):
+    st.warning("Please enter at least one keyword.")
 
-    if st.button("🚀 Lancer l'extraction des suggestions"):
+    if st.button("Extraire les suggestions"):
         with st.spinner("⏳ Traitement en cours..."):
             time.sleep(1)  # Pause pour simuler un chargement
             result_df = process_keywords(keywords_list)
