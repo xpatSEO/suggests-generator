@@ -54,7 +54,7 @@ def process_keywords(keywords_list):
                     for match in matches:
                         split_keywords = [kw.strip() for kw in match.split(',')]
                         for single_word in split_keywords:
-                            extracted_keywords.append({"extracted_word": single_word, "keyword": keyword})
+                            extracted_keywords.append({"suggested_keyword": single_word, "main_keyword": keyword})
 
         # Suggestions transactionnelles
         for ask in transactional_asks:
@@ -65,7 +65,7 @@ def process_keywords(keywords_list):
                     for match in matches:
                         split_keywords = [kw.strip() for kw in match.split(',')]
                         for single_word in split_keywords:
-                            extracted_keywords.append({"extracted_word": single_word, "keyword": keyword})
+                            extracted_keywords.append({"suggested_keyword": single_word, "main_keyword": keyword})
 
     # Conversion en DataFrame
     df = pd.DataFrame(extracted_keywords)
@@ -74,7 +74,7 @@ def process_keywords(keywords_list):
         df = df.applymap(lambda x: None if pd.isna(x) else re.sub(r"[\"\'\[]", "", str(x)))
         df = df.replace(to_replace=r'[0-9]', value=None, regex=True)
         df = df.dropna()
-        df = df[df.apply(lambda row: row['keyword'] in row['extracted_word'], axis=1)]
+        df = df[df.apply(lambda row: row['main_keyword'] in row['suggested_keyword'], axis=1)]
 
     return df
 
@@ -104,7 +104,7 @@ def main():
                 st.download_button(
                     label="📥 Télécharger le fichier CSV",
                     data=csv,
-                    file_name="export_suggestions_simplifie.csv",
+                    file_name="export_suggests.csv",
                     mime="text/csv"
                 )
             else:
