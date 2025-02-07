@@ -65,34 +65,33 @@ def process_keywords(keywords_list):
                     for match in matches:
                         split_keywords = [kw.strip() for kw in match.split(',')]
                         for single_word in split_keywords:
-                            extracted_keywords.append({"suggested_keyword": single_word, "main_keyword": keyword})
+                            extracted_keywords.append({"extracted_word": single_word, "keyword": keyword})
 
-    # Conversion en DataFrame
-    df = pd.DataFrame(extracted_keywords)
+        # Mise à jour de la barre de progression
+        progress_bar.progress((idx + 1) / total_keywords)
 
-    if not df.empty:
-        df = df.applymap(lambda x: None if pd.isna(x) else re.sub(r"[\"\'\[]", "", str(x)))
-        df = df.replace(to_replace=r'[0-9]', value=None, regex=True)
-        df = df.dropna()
-        df = df[df.apply(lambda row: row['main_keyword'] in row['suggested_keyword'], axis=1)]
-
-    return df
+    return pd.DataFrame(extracted_keywords)
 
 
-# --- Interface Streamlit ---
-def main():
-    st.image("arkee-white.png",width=150)
-    st.title("Extracteur de suggestions Google")
-    
-    # Zone de texte pour entrer les mots-clés
-    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
-    
-    if st.button("Lancer l'extraction"):
-        if keywords_text.strip():
-            keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
-            
-            with st.spinner("Analyse en cours..."):
-                result_df = process_keywords(keywords_list)
+# Interface Streamlit
+st.title("Extraction de suggestions Google")
+st.image("logo_arkée.png")
+
+# Upload du fichier CSV
+uploaded_file = st.file_uploader("📂 Importer un fichier CSV contenant des mots-clés :", type=["csv"])
+
+if uploaded_file:
+    df = pd.read_csv(uploaded_file, header=None, names=['keyword'])
+    keywords_list = df['keyword'].tolist()
+
+    if st.button("🚀 Lancer l'extraction des suggestions"):
+        with st.spinner("⏳ Traitement en cours..."):
+            time.sleep(1)  # Pause pour simuler un chargement
+            result_df = process_keywords(keywords_list)
+            result_df = result_df.applymap(lambda x: None if pd.isna(x) else re.sub(r"[\"\'\[]", "", str(x)))
+            result_df = result_df.replace(to_replace=r'[0-9]', value=None, regex=True)
+            result_df = result_df.dropna()
+            result_df = result_df[result_df.apply(lambda row: row['keyword'] in row['extracted_word'], axis=1)]
 
             if not result_df.empty:
                 st.success("Analyse terminée avec succès !")
