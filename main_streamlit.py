@@ -99,3 +99,5 @@ if uploaded_file:
                 )
             else:
                 st.warning("⚠️ Aucun mot-clé trouvé dans les crochets `[...]`.")
+
+streamlit_main()
