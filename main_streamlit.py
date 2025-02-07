@@ -95,7 +95,7 @@ def main():
                 result_df = process_keywords(keywords_list)
 
             if not result_df.empty:
-                st.success("Analyse terminée avec succès !")s
+                st.success("Analyse terminée avec succès !")
                 st.balloons()
                 st.dataframe(result_df)
 
