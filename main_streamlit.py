@@ -33,7 +33,7 @@ def get_suggestions(keyword, ask, hl="fr", gl="fr"):
 
 
 # --- Fonction principale de traitement ---
-def process_keywords(keywords_list):
+def process_keywords(keywords_list, additional_asks):
     extracted_keywords = []
 
     # Listes de requêtes
@@ -43,21 +43,13 @@ def process_keywords(keywords_list):
     
     transactional_asks = ["acheter", "pas cher", "comparatif", "guide d'achat", "le meilleur"]
 
+    # Intégration des asks personnalisés
+    additional_asks_list = [ask.strip().lower() for ask in additional_asks.split("\n") if ask.strip()]
+    all_asks = interrogative_asks + transactional_asks + additional_asks_list
+
     # Boucle sur les mots-clés
     for keyword in keywords_list:
-        # Suggestions interrogatives
-        for ask in interrogative_asks:
-            suggestions = get_suggestions(keyword, ask)
-            for word in suggestions:
-                if word:
-                    matches = re.findall(r'\[(.*?)\]', str(word))
-                    for match in matches:
-                        split_keywords = [kw.strip() for kw in match.split(',')]
-                        for single_word in split_keywords:
-                            extracted_keywords.append({"suggested_keyword": single_word, "main_keyword": keyword})
-
-        # Suggestions transactionnelles
-        for ask in transactional_asks:
+        for ask in all_asks:
             suggestions = get_suggestions(keyword, ask)
             for word in suggestions:
                 if word:
@@ -81,18 +73,22 @@ def process_keywords(keywords_list):
 
 # --- Interface Streamlit ---
 def main():
-    st.image("arkee-white.png",width=150)
+    st.image("arkee-white.png", width=150)
     st.title("Extracteur de suggestions Google")
-    
+
     # Zone de texte pour entrer les mots-clés
     keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
-    
+
+    # Ajout d'une section dans la sidebar pour entrer des asks personnalisés
+    st.sidebar.header("Options supplémentaires")
+    additional_asks_text = st.sidebar.text_area("Si besoin, ajoutez des combinaisons personnalisées (un par ligne) :", "")
+
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
             keywords_list = [kw.strip().lower() for kw in keywords_text.split("\n") if kw.strip()]
             
             with st.spinner("Analyse en cours..."):
-                result_df = process_keywords(keywords_list)
+                result_df = process_keywords(keywords_list, additional_asks_text)
 
             if not result_df.empty:
                 st.success("Analyse terminée avec succès !")
