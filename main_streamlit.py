@@ -47,20 +47,21 @@ def main():
     
     transactional_asks = ["acheter", "pas cher", "comparatif", "guide d'achat", "le meilleur"]
 
-    # Sidebar : Sélection des asks
-    st.sidebar.header("Sélectionnez les asks à inclure")
+    # Popover pour les options avancées
+    with st.popover("⚙️ Options avancées"):
+        st.subheader("Sélectionnez les asks à inclure")
 
-    selected_interrogative_asks = [
-        ask for ask in interrogative_asks if st.sidebar.checkbox(ask, value=True)
-    ]
-    
-    selected_transactional_asks = [
-        ask for ask in transactional_asks if st.sidebar.checkbox(ask, value=True)
-    ]
+        selected_interrogative_asks = [
+            ask for ask in interrogative_asks if st.checkbox(ask, value=True)
+        ]
+        
+        selected_transactional_asks = [
+            ask for ask in transactional_asks if st.checkbox(ask, value=True)
+        ]
 
-    # Zone pour ajouter des asks personnalisés
-    st.sidebar.header("Asks personnalisés")
-    additional_asks_text = st.sidebar.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
+        # Zone pour ajouter des asks personnalisés
+        st.subheader("Asks personnalisés")
+        additional_asks_text = st.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
 
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
