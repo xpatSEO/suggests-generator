@@ -47,8 +47,8 @@ def main():
     
     transactional_asks = ["acheter", "pas cher", "comparatif", "guide d'achat", "le meilleur"]
 
-    # Popover pour les options avancées
-    with st.popover("⚙️ Options avancées"):
+    # Expander pour les options avancées (remplace le popover)
+    with st.expander("⚙️ Options avancées"):
         st.subheader("Sélectionnez les asks à inclure")
 
         selected_interrogative_asks = [
