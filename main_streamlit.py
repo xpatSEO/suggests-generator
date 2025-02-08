@@ -64,7 +64,7 @@ def process_keywords(keywords_list, additional_asks):
 
     if not df.empty:
         df = df.applymap(lambda x: None if pd.isna(x) else re.sub(r"[\"\'\[]", "", str(x)))
-        df = df.replace(to_replace=r'[0-9]', value=None, regex=True)
+        df = df.replace(to_replace=r'^[0-9]{2}$', value=None, regex=True)
         df = df.dropna()
         df = df[df.apply(lambda row: row['main_keyword'] in row['suggested_keyword'], axis=1)]
 
