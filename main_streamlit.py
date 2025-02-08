@@ -37,9 +37,6 @@ def main():
     st.image("arkee-white.png", width=150)
     st.title("Extracteur de suggestions Google")
 
-    # Zone de texte pour entrer les mots-clés
-    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
-
     # Liste des asks
     interrogative_asks = ["comment", "pourquoi", "laquelle", "lequel", "ou", "quand",
                           "que", "qu'est ce", "quel", "vs", "qui", "quelle", "quoi",
@@ -49,7 +46,7 @@ def main():
 
     # Expander pour les options avancées (remplace le popover)
     with st.expander("⚙️ Options avancées"):
-        st.subheader("Sélectionnez les asks à inclure")
+        st.subheader("Sélectionnez les combinaisons à inclure")
 
         selected_interrogative_asks = [
             ask for ask in interrogative_asks if st.checkbox(ask, value=True)
@@ -60,8 +57,11 @@ def main():
         ]
 
         # Zone pour ajouter des asks personnalisés
-        st.subheader("Asks personnalisés")
-        additional_asks_text = st.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
+        st.subheader("Combinaisons personnalisées")
+        additional_asks_text = st.text_area("Ajoutez des combinaisons personnalisées (un par ligne) :", "")
+
+    # Zone de texte pour entrer les mots-clés
+    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
 
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
