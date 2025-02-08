@@ -4,6 +4,7 @@ from fake_useragent import UserAgent
 import json
 import pandas as pd
 import re
+import time  # Ajout pour simuler un délai
 
 # --- Fonction pour récupérer les suggestions Google ---
 def get_suggestions(keyword, ask, hl="fr", gl="fr"):
@@ -31,7 +32,6 @@ def get_suggestions(keyword, ask, hl="fr", gl="fr"):
         st.error(f"🚨 Erreur réseau pour {keyword} ({ask}): {e}")
         return []
 
-
 # --- Fonction principale de traitement ---
 def process_keywords(keywords_list, additional_asks):
     extracted_keywords = []
@@ -47,6 +47,11 @@ def process_keywords(keywords_list, additional_asks):
     additional_asks_list = [ask.strip().lower() for ask in additional_asks.split("\n") if ask.strip()]
     all_asks = interrogative_asks + transactional_asks + additional_asks_list
 
+    total_iterations = len(keywords_list) * len(all_asks)  # Nombre total d'itérations
+    progress_bar = st.progress(0)  # Initialisation de la barre de progression
+    progress_text = st.empty()  # Zone pour afficher le pourcentage
+    iteration = 0
+
     # Boucle sur les mots-clés
     for keyword in keywords_list:
         for ask in all_asks:
@@ -58,15 +63,25 @@ def process_keywords(keywords_list, additional_asks):
                         split_keywords = [kw.strip() for kw in match.split(',')]
                         for single_word in split_keywords:
                             extracted_keywords.append({"suggested_keyword": single_word, "main_keyword": keyword})
+            
+            # Mise à jour de la barre de progression
+            iteration += 1
+            progress_bar.progress(iteration / total_iterations)  # Mise à jour de la barre
+            progress_text.text(f"Traitement en cours... {int((iteration / total_iterations) * 100)}%")  
 
-    # Conversion en DataFrame
+            time.sleep(0.1)  # Simule un délai pour mieux voir la progression
+
+    # Suppression des nombres de 1 ou 2 chiffres seuls mais conservation des années
     df = pd.DataFrame(extracted_keywords)
-
     if not df.empty:
         df = df.applymap(lambda x: None if pd.isna(x) else re.sub(r"[\"\'\[]", "", str(x)))
-        df = df.replace(to_replace=r'^[0-9]{2}$', value=None, regex=True)
+        df = df.replace(to_replace=r'^\d{1,2}$', value=None, regex=True)  # Supprime uniquement les nombres courts
         df = df.dropna()
         df = df[df.apply(lambda row: row['main_keyword'] in row['suggested_keyword'], axis=1)]
+
+    # Suppression de la barre une fois terminé
+    progress_bar.empty()
+    progress_text.empty()
 
     return df
 
@@ -80,19 +95,20 @@ def main():
     keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
 
     # Ajout d'une section dans la sidebar pour entrer des asks personnalisés
-    with st.sidebar:
-        st.header("Options supplémentaires")
-        additional_asks_text = st.sidebar.text_area("Si besoin, ajoutez des combinaisons personnalisées (un par ligne) :", "")
+    st.sidebar.header("Options supplémentaires")
+    additional_asks_text = st.sidebar.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
 
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
             keywords_list = [kw.strip().lower() for kw in keywords_text.split("\n") if kw.strip()]
             
-            with st.spinner("Analyse en cours..."):
-                result_df = process_keywords(keywords_list, additional_asks_text)
+            with st.spinner("Préparation..."):
+                time.sleep(1)  # Petit délai avant le début du traitement
+
+            result_df = process_keywords(keywords_list, additional_asks_text)
 
             if not result_df.empty:
-                st.success("Analyse terminée avec succès !")
+                st.success("✅ Analyse terminée avec succès !")
                 st.balloons()
                 st.dataframe(result_df)
 
