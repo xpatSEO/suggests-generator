@@ -32,29 +32,80 @@ def get_suggestions(keyword, ask, hl="fr", gl="fr"):
         st.error(f"🚨 Erreur réseau pour {keyword} ({ask}): {e}")
         return []
 
-# --- Fonction principale de traitement ---
-def process_keywords(keywords_list, additional_asks):
-    extracted_keywords = []
+# --- Interface Streamlit ---
+def main():
+    st.image("arkee-white.png", width=150)
+    st.title("Extracteur de suggestions Google")
 
-    # Listes de requêtes
+    # Zone de texte pour entrer les mots-clés
+    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
+
+    # Liste des asks
     interrogative_asks = ["comment", "pourquoi", "laquelle", "lequel", "ou", "quand",
                           "que", "qu'est ce", "quel", "vs", "qui", "quelle", "quoi",
                           "avec", "pour", "sans", "comme", "contre", "et"]
     
     transactional_asks = ["acheter", "pas cher", "comparatif", "guide d'achat", "le meilleur"]
 
-    # Intégration des asks personnalisés
-    additional_asks_list = [ask.strip().lower() for ask in additional_asks.split("\n") if ask.strip()]
-    all_asks = interrogative_asks + transactional_asks + additional_asks_list
+    # Sidebar : Sélection des asks
+    st.sidebar.header("Sélectionnez les asks à inclure")
 
-    total_iterations = len(keywords_list) * len(all_asks)  # Nombre total d'itérations
+    selected_interrogative_asks = [
+        ask for ask in interrogative_asks if st.sidebar.checkbox(ask, value=True)
+    ]
+    
+    selected_transactional_asks = [
+        ask for ask in transactional_asks if st.sidebar.checkbox(ask, value=True)
+    ]
+
+    # Zone pour ajouter des asks personnalisés
+    st.sidebar.header("Asks personnalisés")
+    additional_asks_text = st.sidebar.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
+
+    if st.button("Lancer l'extraction"):
+        if keywords_text.strip():
+            keywords_list = [kw.strip().lower() for kw in keywords_text.split("\n") if kw.strip()]
+            
+            with st.spinner("Préparation..."):
+                time.sleep(1)  # Petit délai avant le début du traitement
+
+            # Filtrage des asks sélectionnés
+            additional_asks_list = [ask.strip().lower() for ask in additional_asks_text.split("\n") if ask.strip()]
+            selected_asks = selected_interrogative_asks + selected_transactional_asks + additional_asks_list
+
+            result_df = process_keywords(keywords_list, selected_asks)
+
+            if not result_df.empty:
+                st.success("✅ Analyse terminée avec succès !")
+                st.balloons()
+                st.dataframe(result_df)
+
+                # Génération du fichier CSV téléchargeable
+                csv = result_df.to_csv(sep=';', encoding='utf-8', index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Télécharger le fichier CSV",
+                    data=csv,
+                    file_name="export_suggests.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.warning("⚠️ Aucun mot-clé extrait.")
+
+        else:
+            st.warning("⚠️ Veuillez entrer au moins un mot-clé.")
+
+# --- Fonction principale de traitement ---
+def process_keywords(keywords_list, selected_asks):
+    extracted_keywords = []
+
+    total_iterations = len(keywords_list) * len(selected_asks)  # Nombre total d'itérations
     progress_bar = st.progress(0)  # Initialisation de la barre de progression
     progress_text = st.empty()  # Zone pour afficher le pourcentage
     iteration = 0
 
     # Boucle sur les mots-clés
     for keyword in keywords_list:
-        for ask in all_asks:
+        for ask in selected_asks:
             suggestions = get_suggestions(keyword, ask)
             for word in suggestions:
                 if word:
@@ -84,47 +135,6 @@ def process_keywords(keywords_list, additional_asks):
     progress_text.empty()
 
     return df
-
-
-# --- Interface Streamlit ---
-def main():
-    st.image("arkee-white.png", width=150)
-    st.title("Extracteur de suggestions Google")
-
-    # Zone de texte pour entrer les mots-clés
-    keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
-
-    # Ajout d'une section dans la sidebar pour entrer des asks personnalisés
-    st.sidebar.header("Options supplémentaires")
-    additional_asks_text = st.sidebar.text_area("Ajoutez des asks personnalisés (un par ligne) :", "")
-
-    if st.button("Lancer l'extraction"):
-        if keywords_text.strip():
-            keywords_list = [kw.strip().lower() for kw in keywords_text.split("\n") if kw.strip()]
-            
-            with st.spinner("Préparation..."):
-                time.sleep(1)  # Petit délai avant le début du traitement
-
-            result_df = process_keywords(keywords_list, additional_asks_text)
-
-            if not result_df.empty:
-                st.success("✅ Analyse terminée avec succès !")
-                st.balloons()
-                st.dataframe(result_df)
-
-                # Génération du fichier CSV téléchargeable
-                csv = result_df.to_csv(sep=';', encoding='utf-8', index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Télécharger le fichier CSV",
-                    data=csv,
-                    file_name="export_suggests.csv",
-                    mime="text/csv"
-                )
-            else:
-                st.warning("⚠️ Aucun mot-clé extrait.")
-
-        else:
-            st.warning("⚠️ Veuillez entrer au moins un mot-clé.")
 
 if __name__ == "__main__":
     main()
