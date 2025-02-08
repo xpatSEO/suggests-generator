@@ -80,8 +80,9 @@ def main():
     keywords_text = st.text_area("Entrez vos mots-clés (un par ligne) :")
 
     # Ajout d'une section dans la sidebar pour entrer des asks personnalisés
-    st.sidebar.header("Options supplémentaires")
-    additional_asks_text = st.sidebar.text_area("Si besoin, ajoutez des combinaisons personnalisées (un par ligne) :", "")
+    with st.sidebar:
+        st.header("Options supplémentaires")
+        additional_asks_text = st.sidebar.text_area("Si besoin, ajoutez des combinaisons personnalisées (un par ligne) :", "")
 
     if st.button("Lancer l'extraction"):
         if keywords_text.strip():
